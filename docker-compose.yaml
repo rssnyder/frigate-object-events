@@ -3,7 +3,6 @@ services:
 
   frigate-object-events:
     image: ghcr.io/clinta/frigate-object-events
-    build: .
     environment:
       SERVER: 192.168.254.1:1883
       SUBSCRIBE_TOPIC: frigate/events
