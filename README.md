@@ -4,8 +4,14 @@ This daemon looks for frigate events from MQTT and track when an event's motion 
 
 It also publishes the sensors for automatic discovery in home assistant.
 
-## Install
+## Linux (systemd)
 
 1: Download frigate-object-events from releases, or compile with `go build .` and put in `/usr/local/bin`
 2: Put the systemd [unit](frigate-object-events.service) in `/etc/systemd/system`
 3: Reload your units (`systemctl daemon-reload`) and start the service (`systemctl start frigate-object-events.service`)
+
+## Docker
+
+1. Copy the example `docker-compose.yaml` from this repo onto your system
+2. Edit the environment variable if nessesary
+3. Run `docker compose up -d`
