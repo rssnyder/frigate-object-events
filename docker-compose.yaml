@@ -1,0 +1,15 @@
+---
+services:
+
+  frigate-object-events:
+    image: ghcr.io/clinta/frigate-object-events
+    build: .
+    environment:
+      SERVER: 192.168.254.1:1883
+      SUBSCRIBE_TOPIC: frigate/events
+      PUBLISH_TOPIC: frigate_objects
+      DISCOVERY_TOPIC: homeassistant
+      QOS: 0
+      CLIENTID: frigate_hass_object_events
+      USERNAME: 
+      PASSWORD: 

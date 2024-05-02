@@ -187,15 +187,19 @@ const MqttKeepAlive = 30
 var logger *log.Logger = log.New(os.Stdout, "SUB: ", log.LstdFlags)
 
 func main() {
-	server := flag.String("server", "127.0.0.1:1883", "The MQTT server to connect to ex: 127.0.0.1:1883")
-	subTopic := flag.String("subscribe-topic", "frigate/events", "Topic to subscribe to")
-	pubTopic := flag.String("publish-topic", "frigate_objects", "Topic to publish to")
-	discoveryTopic := flag.String("discovery-topic", "homeassistant",
+	server := flag.String("server", getEnv("SERVER", "127.0.0.1:1883"), "The MQTT server to connect to ex: 127.0.0.1:1883")
+	subTopic := flag.String("subscribe-topic", getEnv("SUBSCRIBE_TOPIC", "frigate/events"), "Topic to subscribe to")
+	pubTopic := flag.String("publish-topic", getEnv("PUBLISH_TOPIC", "frigate_objects"), "Topic to publish to")
+	discoveryTopic := flag.String("discovery-topic", getEnv("DISCOVERY_TOPIC", "homeassistant"),
 		"home assistant discovery topic (set to empty to disable discovery)")
-	qos := flag.Int("qos", 0, "The QoS to subscribe to messages at")
-	clientid := flag.String("clientid", "frigate_hass_object_events", "A clientid for the connection")
-	username := flag.String("username", "", "A username to authenticate to the MQTT server")
-	password := flag.String("password", "", "Password to match username")
+	qosEnv, err := strconv.Atoi(getEnv("QOS", "0"))
+	if err != nil {
+		qosEnv = 0
+	}
+	qos := flag.Int("qos", qosEnv, "The QoS to subscribe to messages at")
+	clientid := flag.String("clientid", getEnv("CLIENTID", "frigate_hass_object_events"), "A clientid for the connection")
+	username := flag.String("username", getEnv("USERNAME", ""), "A username to authenticate to the MQTT server")
+	password := flag.String("password", getEnv("PASSWORD", ""), "Password to match username")
 	flag.Parse()
 
 	cp := &paho.Connect{
@@ -227,7 +231,7 @@ func main() {
 		cancel()
 	}()
 
-	err := subscribe(ctx, *server, cp, *subTopic, *pubTopic, *discoveryTopic, *qos)
+	err = subscribe(ctx, *server, cp, *subTopic, *pubTopic, *discoveryTopic, *qos)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -488,4 +492,12 @@ func (a *after) getCounts(events map[string]*after) *updates {
 	}
 
 	return u
+}
+
+func getEnv(key, fallback string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return fallback
+	}
+	return value
 }
