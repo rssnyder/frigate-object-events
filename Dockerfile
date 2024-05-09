@@ -1,12 +1,15 @@
-FROM golang:1.22
+FROM golang:1.22 as base
 
-WORKDIR /app
+WORKDIR /
 
-COPY go.mod go.sum ./
-RUN go mod download
+COPY . ./
 
-COPY *.go ./
+RUN go build -o app *.go
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /frigate-object-events
+CMD ./app
 
-CMD ["/frigate-object-events"]
+FROM debian:12-slim
+
+COPY --from=base /app ./
+
+CMD ./app
